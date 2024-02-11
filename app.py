@@ -32,10 +32,9 @@ if st.button("Ask") and pdf_file:
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
-    model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, revision="gptq-4bit-128g-actorder_True",
-                                               model_basename=model_basename, use_safetensors=True,
-                                               trust_remote_code=True, inject_fused_attention=False, device=DEVICE,
-                                               quantize_config=None)
+    model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, model_basename=model_basename,
+                                               use_safetensors=True, trust_remote_code=True,
+                                               inject_fused_attention=False, device=DEVICE, quantize_config=None)
 
     # Pipeline setup
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
