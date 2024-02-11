@@ -1,15 +1,14 @@
 import streamlit as st
 import torch
 from auto_gptq import AutoGPTQForCausalLM
-from langchain import HuggingFacePipeline, PromptTemplate
-from langchain.chains import RetrievalQA
+from langchain import HuggingFacePipeline
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pdf2image import convert_from_path
 from transformers import AutoTokenizer, TextStreamer, pipeline
 
-DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"  # Set the device to CPU
 
 # Data loading
 pdf_directory = "pdfs"
