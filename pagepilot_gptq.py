@@ -6,7 +6,6 @@ from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
 from pdf2image import convert_from_path
 from transformers import AutoTokenizer, TextStreamer, pipeline
 
@@ -20,14 +19,11 @@ embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large",
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=64)
 texts = text_splitter.split_documents(docs)
 
-# Vectorization
-db = Chroma.from_documents(texts, embeddings, persist_directory="db")
-
 # Model loading
 model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
 model_basename = "model"
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
-model = AutoGPTQForCausalLM.from_quantized(model_name_or_path, revision="gptq-4bit-128g-actorder_True",
+model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, revision="gptq-4bit-128g-actorder_True",
                                            model_basename=model_basename, use_safetensors=True,
                                            trust_remote_code=True, inject_fused_attention=False, device=DEVICE,
                                            quantize_config=None)
@@ -43,5 +39,5 @@ st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
 
 if st.button("Ask"):
-    result = qa_chain(question)
+    result = llm(question)
     st.write("Answer:", result)
