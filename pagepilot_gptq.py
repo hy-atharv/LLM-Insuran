@@ -16,9 +16,20 @@ if st.button("Ask"):
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     # Data loading
-    pdf_directory = "pdfs"
-    loader = PyPDFDirectoryLoader(pdf_directory)
-    docs = loader.load()
+    pdf_directory = st.file_uploader("Upload PDF", type=["pdf"])
+    if pdf_directory is None:
+        st.error("Please upload a PDF file.")
+        st.stop()
+
+    with pdf_directory:
+        # Check if the PDF file exists
+        try:
+            loader = PyPDFDirectoryLoader(pdf_directory)
+            docs = loader.load()
+        except Exception as e:
+            st.error("An error occurred while loading the PDF file.")
+            st.stop()
+
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
     # Model loading
