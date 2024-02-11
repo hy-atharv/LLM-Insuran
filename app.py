@@ -1,30 +1,55 @@
-# app.py
 import streamlit as st
 import torch
 from auto_gptq import AutoGPTQForCausalLM
-from langchain import HuggingFacePipeline
+from langchain import HuggingFacePipeline, PromptTemplate
+from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Chroma
+from pdf2image import convert_from_path
 from transformers import AutoTokenizer, TextStreamer, pipeline
+import os
+
+# Check if CUDA is available
+DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
+pdf_path = st.text_input("Enter the path to the PDF file:")
 
 # Check for user input and execute the model
 if st.button("Ask"):
     # Data loading
     pdf_directory = "pdfs"
+    if pdf_path:
+        # Move the PDF to the predefined directory
+        os.makedirs(pdf_directory, exist_ok=True)
+        os.rename(pdf_path, os.path.join(pdf_directory, "document.pdf"))
+
     loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large")
+
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
+
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=64)
+    texts = text_splitter.split_documents(docs)
 
     # Model loading
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
-    model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, revision="gptq-4bit-128g-actorder_True",
-                                               model_basename=model_basename)
+    model = AutoGPTQForCausalLM.from_quantized(
+        model_name_or_path,
+        revision="gptq-4bit-128g-actorder_True",
+        model_basename=model_basename,
+        use_safetensors=True,
+        trust_remote_code=True,
+        inject_fused_attention=False,
+        device=DEVICE,
+        quantize_config=None,
+    )
 
     # Pipeline setup
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
