@@ -1,14 +1,15 @@
 import streamlit as st
-import torch
 from auto_gptq import AutoGPTQForCausalLM
 from langchain import HuggingFacePipeline
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, TextStreamer, pipeline
+import requests
 
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
+pdf_link = st.text_input("Paste your PDF drive link here:")
 
 # Check for user input and execute the model
 if st.button("Ask"):
@@ -17,6 +18,13 @@ if st.button("Ask"):
 
     # Data loading
     pdf_directory = "pdfs"
+    if pdf_link:
+        with st.spinner("Downloading PDF..."):
+            response = requests.get(pdf_link)
+            with open('pdfs/document.pdf', 'wb') as f:
+                f.write(response.content)
+        pdf_directory = "pdfs/document.pdf"
+        
     loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
