@@ -6,30 +6,13 @@ from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, TextStreamer, pipeline
 
-# Initialize Streamlit UI
-st.title("PDF Chatbot")
-question = st.text_input("Enter your question here:")
-
-# Check for user input and execute the model
-if st.button("Ask"):
+def process_pdf(pdf_path, question):
     # Check if CUDA is available
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     # Data loading
-    pdf_directory = st.file_uploader("Upload PDF", type=["pdf"])
-    if pdf_directory is None:
-        st.error("Please upload a PDF file.")
-        st.stop()
-
-    with pdf_directory:
-        # Check if the PDF file exists
-        try:
-            loader = PyPDFDirectoryLoader(pdf_directory)
-            docs = loader.load()
-        except Exception as e:
-            st.error("An error occurred while loading the PDF file.")
-            st.stop()
-
+    loader = PyPDFDirectoryLoader(pdf_path)
+    docs = loader.load()
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
     # Model loading
@@ -49,4 +32,19 @@ if st.button("Ask"):
 
     # Generate response
     response = llm(question)
+    return response
+
+# Initialize Streamlit UI
+st.title("PDF Chatbot")
+question = st.text_input("Enter your question here:")
+pdf_file = st.file_uploader("Upload PDF")
+
+# Check for user input and execute the model
+if st.button("Ask") and pdf_file:
+    # Save uploaded PDF file to a temporary location
+    with open('temp.pdf', 'wb') as f:
+        f.write(pdf_file.read())
+
+    # Process PDF and question
+    response = process_pdf('temp.pdf', question)
     st.write("Answer:", response)
