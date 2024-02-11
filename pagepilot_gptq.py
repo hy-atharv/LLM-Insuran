@@ -1,3 +1,4 @@
+# pagepilot_gptq.py
 import streamlit as st
 import torch
 from auto_gptq import AutoGPTQForCausalLM
@@ -6,23 +7,24 @@ from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, TextStreamer, pipeline
 
-def process_pdf(pdf_path, question):
-    # Check if CUDA is available
-    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+# Initialize Streamlit UI
+st.title("PDF Chatbot")
+question = st.text_input("Enter your question here:")
 
+# Check for user input and execute the model
+if st.button("Ask"):
     # Data loading
-    loader = PyPDFDirectoryLoader(pdf_path)
+    pdf_directory = "pdfs"
+    loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large")
 
     # Model loading
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
     model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, revision="gptq-4bit-128g-actorder_True",
-                                               model_basename=model_basename, use_safetensors=True,
-                                               trust_remote_code=True, inject_fused_attention=False, device=DEVICE,
-                                               quantize_config=None)
+                                               model_basename=model_basename)
 
     # Pipeline setup
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
@@ -32,19 +34,4 @@ def process_pdf(pdf_path, question):
 
     # Generate response
     response = llm(question)
-    return response
-
-# Initialize Streamlit UI
-st.title("PDF Chatbot")
-question = st.text_input("Enter your question here:")
-pdf_file = st.file_uploader("Upload PDF")
-
-# Check for user input and execute the model
-if st.button("Ask") and pdf_file:
-    # Save uploaded PDF file to a temporary location
-    with open('temp.pdf', 'wb') as f:
-        f.write(pdf_file.read())
-
-    # Process PDF and question
-    response = process_pdf('temp.pdf', question)
     st.write("Answer:", response)
