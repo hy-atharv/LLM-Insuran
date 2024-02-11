@@ -1,10 +1,18 @@
 import streamlit as st
+import torch
 from auto_gptq import AutoGPTQForCausalLM
 from langchain import HuggingFacePipeline
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, TextStreamer, pipeline
 import requests
+
+# Check if CUDA is available
+try:
+    torch.cuda.is_available()
+    DEVICE = "cuda:0"
+except Exception as e:
+    DEVICE = "cpu"
 
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
@@ -13,9 +21,6 @@ pdf_link = st.text_input("Paste your PDF drive link here:")
 
 # Check for user input and execute the model
 if st.button("Ask"):
-    # Check if CUDA is available
-    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-
     # Data loading
     pdf_directory = "pdfs"
     if pdf_link:
@@ -24,7 +29,7 @@ if st.button("Ask"):
             with open('pdfs/document.pdf', 'wb') as f:
                 f.write(response.content)
         pdf_directory = "pdfs/document.pdf"
-        
+
     loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
