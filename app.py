@@ -1,5 +1,5 @@
 import streamlit as st
-import pagepilot_gptq  # Import your Google Colab code from pagepilot_gptq.py
+from pagepilot_gptq import process_question  # Import your function from pagepilot_gptq.py
 
 def main():
     # Set page title and description
@@ -13,7 +13,7 @@ def main():
     if st.button("Submit"):
         if question:
             # Process the question using your Colab code
-            response = my_colab_code.process_question(question)
+            response = process_question(question)
             # Display the response
             st.write("Response:", response)
         else:
