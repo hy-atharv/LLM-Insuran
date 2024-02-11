@@ -1,3 +1,4 @@
+# app.py
 import streamlit as st
 import torch
 from auto_gptq import AutoGPTQForCausalLM
@@ -5,36 +6,25 @@ from langchain import HuggingFacePipeline
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, TextStreamer, pipeline
-import os
 
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
-pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
 
 # Check for user input and execute the model
-if st.button("Ask") and pdf_file:
-    # Check if CUDA is available
-    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-
+if st.button("Ask"):
     # Data loading
     pdf_directory = "pdfs"
-    if not os.path.exists(pdf_directory):
-        os.makedirs(pdf_directory)
-    pdf_path = os.path.join(pdf_directory, "document.pdf")
-    with open(pdf_path, 'wb') as f:
-        f.write(pdf_file.read())
-    loader = PyPDFDirectoryLoader(pdf_path)
+    loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large")
 
     # Model loading
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
-    model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, model_basename=model_basename,
-                                               use_safetensors=True, trust_remote_code=True,
-                                               inject_fused_attention=False, device=DEVICE, quantize_config=None)
+    model = AutoGPTQForCausalLM.from_pretrained(model_name_or_path, revision="gptq-4bit-128g-actorder_True",
+                                               model_basename=model_basename)
 
     # Pipeline setup
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
