@@ -5,31 +5,27 @@ from langchain import HuggingFacePipeline
 from langchain.document_loaders import PyPDFDirectoryLoader
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, TextStreamer, pipeline
+import os
 
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
+pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
 
 # Check for user input and execute the model
-if st.button("Ask"):
+if st.button("Ask") and pdf_file:
     # Check if CUDA is available
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     # Data loading
-    pdf_directory = st.file_uploader("Upload PDF", type=["pdf"])
-    if pdf_directory is None:
-        st.error("Please upload a PDF file.")
-        st.stop()
-
-    with pdf_directory:
-        # Check if the PDF file exists
-        try:
-            loader = PyPDFDirectoryLoader(pdf_directory)
-            docs = loader.load()
-        except Exception as e:
-            st.error("An error occurred while loading the PDF file.")
-            st.stop()
-
+    pdf_directory = "pdfs"
+    if not os.path.exists(pdf_directory):
+        os.makedirs(pdf_directory)
+    pdf_path = os.path.join(pdf_directory, "document.pdf")
+    with open(pdf_path, 'wb') as f:
+        f.write(pdf_file.read())
+    loader = PyPDFDirectoryLoader(pdf_path)
+    docs = loader.load()
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
     # Model loading
