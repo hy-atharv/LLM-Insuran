@@ -15,22 +15,20 @@ import gdown
 # Check if CUDA is available
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
+# Download the PDF file using gdown
+pdf_url = "https://drive.google.com/uc?id=1DnG_6LoXjn57oGGP5jfLvTxCRoRy87qz"
+pdf_path = "pdfs/Insurance.pdf"
+os.makedirs("pdfs", exist_ok=True)
+gdown.download(pdf_url, pdf_path, quiet=False)
+
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
-pdf_drive_link = st.text_input("Enter the Google Drive link to the PDF file:")
 
 # Check for user input and execute the model
 if st.button("Ask"):
     # Data loading
     pdf_directory = "pdfs"
-    os.makedirs(pdf_directory, exist_ok=True)
-
-    if pdf_drive_link:
-        st.info("Downloading PDF file from Google Drive...")
-        output_path = os.path.join(pdf_directory, "Insurance.pdf")
-        gdown.download(pdf_drive_link, output_path, quiet=False)
-
     loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
 
