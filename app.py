@@ -10,6 +10,7 @@ from langchain.vectorstores import Chroma
 from pdf2image import convert_from_path
 from transformers import AutoTokenizer, TextStreamer, pipeline
 import os
+import gdown
 
 # Check if CUDA is available
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -17,14 +18,18 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
+pdf_drive_link = st.text_input("Enter the Google Drive link to the PDF file:")
 
 # Check for user input and execute the model
 if st.button("Ask"):
-    # Enter the path to the PDF file manually
-    pdf_directory = st.text_input("Enter the path to the PDF file directory:")
-    if not os.path.exists(pdf_directory):
-        st.error("Invalid PDF directory path. Please enter a valid path.")
-        st.stop()
+    # Data loading
+    pdf_directory = "pdfs"
+    os.makedirs(pdf_directory, exist_ok=True)
+
+    if pdf_drive_link:
+        st.info("Downloading PDF file from Google Drive...")
+        output_path = os.path.join(pdf_directory, "Insurance.pdf")
+        gdown.download(pdf_drive_link, output_path, quiet=False)
 
     loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
