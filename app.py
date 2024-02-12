@@ -17,16 +17,14 @@ DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 # Initialize Streamlit UI
 st.title("PDF Chatbot")
 question = st.text_input("Enter your question here:")
-pdf_path = st.text_input("Enter the path to the PDF file:")
 
 # Check for user input and execute the model
 if st.button("Ask"):
-    # Data loading
-    pdf_directory = "pdfs"
-    if pdf_path:
-        # Move the PDF to the predefined directory
-        os.makedirs(pdf_directory, exist_ok=True)
-        os.rename(pdf_path, os.path.join(pdf_directory, "document.pdf"))
+    # Enter the path to the PDF file manually
+    pdf_directory = st.text_input("Enter the path to the PDF file directory:")
+    if not os.path.exists(pdf_directory):
+        st.error("Invalid PDF directory path. Please enter a valid path.")
+        st.stop()
 
     loader = PyPDFDirectoryLoader(pdf_directory)
     docs = loader.load()
