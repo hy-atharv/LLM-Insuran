@@ -22,15 +22,16 @@ os.makedirs("pdfs", exist_ok=True)
 gdown.download(pdf_url, pdf_path, quiet=False)
 
 # Initialize Streamlit UI
-st.title("PDF Chatbot")
-question = st.text_input("Enter your question here:")
+st.title("PDF Extractor")
+
+file = st.file_uploader("Upload a PDF file", type="pdf")
 
 # Check for user input and execute the model
-if st.button("Ask"):
+
     # Data loading
-    pdf_directory = "pdfs"
-    loader = PyPDFDirectoryLoader(pdf_directory)
-    docs = loader.load()
+if file is not None:
+    
+    docs = file.load()
 
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
