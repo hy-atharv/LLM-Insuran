@@ -60,5 +60,5 @@ if file is not None:
     llm = HuggingFacePipeline(pipeline=text_pipeline, model_kwargs={"temperature": 0})
 
     # Generate response
-    response = llm(question)
-    st.write("Answer:", response)
+    response = llm("Generate a JSON containing all important information and key values as given in the document")
+    st.write("JSON Generated:", response)
