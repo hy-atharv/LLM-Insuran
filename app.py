@@ -1,4 +1,5 @@
 import streamlit as st
+import PyPDF2
 from io import StringIO
 import torch
 from auto_gptq import AutoGPTQForCausalLM
@@ -27,13 +28,16 @@ file = st.file_uploader("Upload a PDF file", type="pdf")
     # Data loading
 if file is not None:
     
-    stringio = StringIO(file.getvalue().decode("utf-8"))
-    string_data = stringio.read()
+    pdf_reader = PyPDF2.PdfFileReader(file)
+    content = ""
+
+    for page in range(pdf_reader.getNumPages()):
+        content += pdf_reader.getPage(page).extractText()
 
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=64)
-    texts = text_splitter.split_documents(string_data)
+    texts = text_splitter.split_documents(content)
 
     # Model loading
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
