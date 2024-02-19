@@ -33,7 +33,7 @@ if file is not None:
     for page in range(len(pdf_reader.pages)):
         content += pdf_reader.pages[page].extract_text()
 
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
+    embeddings = HuggingFaceInstructEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2", model_kwargs={"device": DEVICE})
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=64)
     texts = text_splitter.create_documents(content)
