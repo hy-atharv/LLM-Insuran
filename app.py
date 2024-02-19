@@ -30,7 +30,7 @@ if file is not None:
     pdf_reader = PyPDF2.PdfReader(file)
     content = ""
 
-    for page in range(pdf_reader.getNumPages()):
+    for page in range(len(pdf_reader.pages)):
         content += pdf_reader.getPage(page).extractText()
 
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
