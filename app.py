@@ -54,7 +54,6 @@ if file is not None:
         quantize_config=gptq_config,
     )
 
-    quantized_model = torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8
 
     # Pipeline setup
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
