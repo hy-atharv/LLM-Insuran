@@ -36,7 +36,7 @@ if file is not None:
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=64)
-    texts = text_splitter.split_documents(content)
+    texts = text_splitter.create_documents(content)
 
     # Model loading
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
