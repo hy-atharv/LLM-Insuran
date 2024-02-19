@@ -43,9 +43,8 @@ if file is not None:
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
     gptq_config = GPTQConfig(bits=4, dataset = "c4", tokenizer=tokenizer)
-    model = AutoGPTQForCausalLM.from_quantized(
+    model = AutoGPTQForCausalLM.from_pretrained(
         model_name_or_path,
-        revision="gptq-4bit-128g-actorder_True",
         model_basename=model_basename,
         use_safetensors=True,
         trust_remote_code=True,
