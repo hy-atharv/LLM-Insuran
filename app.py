@@ -31,7 +31,7 @@ if file is not None:
     content = ""
 
     for page in range(len(pdf_reader.pages)):
-        content += pdf_reader.getPage(page).extractText()
+        content += pdf_reader.pages[page].extractText()
 
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
