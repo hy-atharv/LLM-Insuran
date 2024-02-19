@@ -42,6 +42,7 @@ if file is not None:
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
+    gptq_config = GPTQConfig(bits=4, dataset = "c4", tokenizer=tokenizer)
     model = AutoGPTQForCausalLM.from_quantized(
         model_name_or_path,
         revision="gptq-4bit-128g-actorder_True",
@@ -50,14 +51,14 @@ if file is not None:
         trust_remote_code=True,
         inject_fused_attention=False,
         device=device,
-        quantize_config=None,
+        quantize_config=gptq_config,
     )
 
     quantized_model = torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8
 
     # Pipeline setup
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
-    text_pipeline = pipeline("text-generation", model=quantized_model, tokenizer=tokenizer, max_new_tokens=1024, temperature=0,
+    text_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=1024, temperature=0,
                              top_p=0.95, repetition_penalty=1.15, streamer=streamer)
     llm = HuggingFacePipeline(pipeline=text_pipeline, model_kwargs={"temperature": 0})
 
