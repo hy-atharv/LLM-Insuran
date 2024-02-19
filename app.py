@@ -16,7 +16,10 @@ import os
 # Check if CUDA is available
 device = torch.device("cpu")
 
-inp1.type(torch.float32)
+if torch.cuda.is_available():
+        torch.set_default_tensor_type(torch.cuda.HalfTensor)
+
+
 
 
 # Initialize Streamlit UI
