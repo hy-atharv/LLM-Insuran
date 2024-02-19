@@ -10,7 +10,7 @@ from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from pdf2image import convert_from_path
-from transformers import AutoTokenizer, TextStreamer, pipeline
+from transformers import AutoTokenizer, TextStreamer, pipeline, GPTQConfig
 import os
 
 # Check if CUDA is available
