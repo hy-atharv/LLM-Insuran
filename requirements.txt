@@ -1,4 +1,4 @@
-pytorch
+torch
 transformers==4.31.0
 langchain==0.0.266
 chromadb==0.4.5
