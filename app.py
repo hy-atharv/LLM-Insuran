@@ -48,7 +48,7 @@ if file is not None:
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
     gptq_config = GPTQConfig(bits=4, dataset = "c4", tokenizer=tokenizer, disable_exllama=True)
 
-    dtype = torch.float16
+    dtype = torch.float32
     model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
         quantization_config=gptq_config,
