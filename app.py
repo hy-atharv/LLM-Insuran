@@ -15,11 +15,6 @@ import gdown
 # Check if CUDA is available
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-# Download the PDF file using gdown
-pdf_url = "https://drive.google.com/uc?id=1DnG_6LoXjn57oGGP5jfLvTxCRoRy87qz"
-pdf_path = "pdfs/Insurance.pdf"
-os.makedirs("pdfs", exist_ok=True)
-gdown.download(pdf_url, pdf_path, quiet=False)
 
 # Initialize Streamlit UI
 st.title("PDF Extractor")
@@ -31,12 +26,13 @@ file = st.file_uploader("Upload a PDF file", type="pdf")
     # Data loading
 if file is not None:
     
-    docs = file.load()
+    stringio = StringIO(file.getvalue().decode("utf-8"))
+    string_data = stringio.read()
 
     embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-large", model_kwargs={"device": DEVICE})
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=64)
-    texts = text_splitter.split_documents(docs)
+    texts = text_splitter.split_documents(string_data)
 
     # Model loading
     model_name_or_path = "TheBloke/Llama-2-13B-chat-GPTQ"
