@@ -16,8 +16,7 @@ import os
 # Check if CUDA is available
 device = torch.device("cpu")
 
-if torch.cuda.is_available():
-        torch.set_default_tensor_type(torch.cuda.HalfTensor)
+
 
 
 
@@ -48,9 +47,12 @@ if file is not None:
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
     gptq_config = GPTQConfig(bits=4, dataset = "c4", tokenizer=tokenizer, disable_exllama=True)
+
+    dtype = torch.float16
     model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
         quantization_config=gptq_config,
+        torch_dtype=dtype,
         device_map='auto'
         
         
