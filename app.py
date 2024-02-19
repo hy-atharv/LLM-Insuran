@@ -50,7 +50,6 @@ if file is not None:
     gptq_config = GPTQConfig(bits=4, dataset = "c4", tokenizer=tokenizer, disable_exllama=True)
     model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
-        quantization_config=gptq_config,
         device_map='auto'
     )
 
