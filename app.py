@@ -1,4 +1,5 @@
 import streamlit as st
+from io import StringIO
 import torch
 from auto_gptq import AutoGPTQForCausalLM
 from langchain import HuggingFacePipeline, PromptTemplate
