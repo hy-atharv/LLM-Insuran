@@ -16,6 +16,8 @@ import os
 # Check if CUDA is available
 device = torch.device("cpu")
 
+inp1.type(torch.float32)
+
 
 # Initialize Streamlit UI
 st.title("PDF Extractor")
