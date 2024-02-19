@@ -10,7 +10,7 @@ from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from pdf2image import convert_from_path
-from transformers import AutoTokenizer, TextStreamer, pipeline, GPTQConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer, pipeline, GPTQConfig
 import os
 
 # Check if CUDA is available
@@ -43,14 +43,10 @@ if file is not None:
     model_basename = "model"
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
     gptq_config = GPTQConfig(bits=4, dataset = "c4", tokenizer=tokenizer)
-    model = AutoGPTQForCausalLM.from_pretrained(
+    model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
-        model_basename=model_basename,
-        use_safetensors=True,
-        trust_remote_code=True,
-        inject_fused_attention=False,
-        device=device,
-        quantize_config=gptq_config,
+        quantization_config=gptq_config,
+        device_map='auto'
     )
 
 
