@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 import google.generativeai as genai
 from langchain.chains.question_answering import load_qa_chain
-GOOGLE_API_KEY = 'AIzaSyA13K0uJP5ti0R6eCy_ogK0UlqenbFfr_o'
+GOOGLE_API_KEY = 'GET_YOUR_GEMINI_API_KEY_&_PASTE_HERE'
 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = ChatGoogleGenerativeAI(model="gemini-pro",
